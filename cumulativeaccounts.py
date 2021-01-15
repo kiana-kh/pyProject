@@ -1,15 +1,12 @@
 # -*- coding: utf-8 -*-
 #should use comments properly
+#data_dictionary= {"numbers": [1,2,3,4,5,6],"categories": ["Bills","Elevator","Charge","Cleaning","Repairment"]}
+#subcategory support must be implemented
+#deal with nan in main program
 import pandas as pd
 from pandas import DataFrame as df
 def cumulative_input(data_dictionary: dict):
     """
-    
-
-    Parameters
-    ----------
-    data_dictionary : dict
-        containing general information of all the available categories and building numbers.
     
     Description
     -----------
@@ -22,26 +19,28 @@ def cumulative_input(data_dictionary: dict):
         dictionary with declared filtering factor.
 
     """
-    #structur for filterby:" filterby (tuple of categories names in string format) (tuple of )
+    #structure for filterby:"filterby (tuple of categories names in string format) (tuple of desired unit numbers integers) (tuple of begining date and ending date with / and in string format)"
+    #example:
+    #filterby ("Elevator","Bills") (2,5,3,1) ("1399/03/24","1399/05/07")
     first_level_prompt = "please enter the number of Filtering mode or type declared filtering structure: \n1.Based on categories\n"\
                          "2.based on building number\n3.based on dates\n"
-    second_level_prompt = ["please enter desired categories in one line, separating them with space:",
-                           "please enter desired building number in one line, separating them with space:",
-                           "please enter desired time period with '/'. separate the dates with space:"]   
+    second_level_prompt = ["please enter desired categories in one line, separating them with space:\n",
+                           "please enter desired building units in one line, separating them with space:\n",
+                           "please enter desired time period with '/'. separate the dates with space:\n"]   
     ending_prompt=["You have choosen the following filters: ",
-                   "categories of desired accounts: ",
-                   "building numbers of desired accounts: ",
+                   "categories of accounts that will be reported: ",
+                   "building units whom the accounts refer to: ",
                    "time period which the accounts have taken place on: ",
                    "if you want to add or change a filter please enter 0. otherwise enter any character to continue:"]
     ##can be improved add help                   
     loop_break = "0"
-    filters=["all categories","all building numbers","all times"]
-    filters_dictionary:{"category": data_dictionary["categories"],
-                        "number": data_dictionary["numbers"],
-                        "date": ()}
-            
+    filters=["all categories","all units","all times"]
+    #1dropped idea 
+    #1 filters_dictionary:{"categories": [False] + data_dictionary["categories"],
+    #1                     "number": [False] + data_dictionary["numbers"],
+    #1                     "date": [False]}
+      
     while (loop_break == "0"):
-        ##takes input in two way and puts them in filters as strings
         try:
             inputs=[]
             inputs.extend(input(first_level_prompt).split())
@@ -63,8 +62,8 @@ def cumulative_input(data_dictionary: dict):
         finally:
             print("{t[0]}\n{t[1]}{f[0]}\n{t[2]}{f[1]}\n{t[3]}{f[2]}\n\n{t[4]}".format(t=ending_prompt,f=filters))##can be improved add until and..
             loop_break = input()
-    #continue from here make filters_dictionary based on filters
-    return filters_dictionary
+    
+    return filters
               
                 
 def filteron_time(data,time:tuple):
@@ -84,6 +83,7 @@ def filteron_time(data,time:tuple):
         containing filtered accounts 
 
     """         
+    
 def filteron_category(data,categories: tuple):
     """
     
@@ -99,8 +99,15 @@ def filteron_category(data,categories: tuple):
     newdf: dataframe
         containing filtered accounts 
 
-    """         
-def filteron_number(data,number: tuple):
+    """
+    
+    newdf = data[data["Category"].isin(filters[0])]
+    newdf.reset_index(inplace=True)
+    
+    return newdf
+
+          
+def filteron_unit(data,number: tuple):
     """
     
     Parameters
@@ -108,7 +115,7 @@ def filteron_number(data,number: tuple):
     data : dataframe 
         containing accounts.
     number : tuple
-        containing integers representing building numbers.
+        containing integers representing unit numbers.
     
     Returns 
     -------
@@ -116,15 +123,21 @@ def filteron_number(data,number: tuple):
         containing filtered accounts 
 
     """           
-        
+    newdf = data[data["RelatedUnit"].isin(filters[1])]
+    newdf.reset_index(inplace=True)
+    
+    return newdf        
 
 
-def cumulative_filter(maindict:dict)
+def cumulative_filter(maindict:dict):
     with open("accounts.csv") as data:
-    accounts = pd.read_csv(data)
-    assigned_filters = cumulative_input(maindict)
-    filtered_accounts = filteron_time(accounts,assigned_filters["date"])
-    filtered_accounts = filteron_number(filtered_accounts, assigned_filters["number"])
-    filtered_accounts = filteron_category(filtered_accounts, assigned_filters["category"])
-    #df.groupby()
+        accounts = pd.read_csv(data)
+        assigned_filters = cumulative_input(maindict)
+        if assigned_filters[2] != "all times":
+            filtered_accounts = filteron_time(accounts,assigned_filters["date"][0])
+        if assigned_filters[1] != "all units":
+            filtered_accounts = filteron_number(filtered_accounts, assigned_filters["number"][0])
+        if assigned_filters[0]  != "all categories":
+            filtered_accounts = filteron_category(filtered_accounts, assigned_filters["category"][0])
+            #df.groupby()
 
