@@ -20,7 +20,7 @@ def cumulative_input():
 
     """
     #structure for filterby:"filterby (tuple of categories names in string format) (tuple of desired unit numbers integers) (tuple of begining date and ending date with / and in string format)"
-    #example:
+    #example:       category         unit               dates                  index by
     #filterby ("Elevator","Bills") (2,5,3,1) ("1399/03/24","1399/05/07") skip RelatedUnit
     first_level_prompt = "please enter the number of Filtering mode or type declared filtering structure: \n1.Based on categories\n"\
                          "2.based on building number\n3.based on dates\n"
@@ -74,7 +74,6 @@ def cumulative_input():
             
     else:
         filters.append(inputs[5])
-        #can be improved add multiindex
     return filters
               
                 
@@ -145,14 +144,18 @@ def filteron_unit(data,number: tuple):
 #def cumulative_filter(maindict:dict):
     with open("accounts.csv") as data:
         accounts = pd.read_csv(data)
-        assigned_filters = cumulative_input()
-        filtered_accounts = accounts
-        if assigned_filters[2] != "all times":
-            filtered_accounts = filteron_time(filtered_accounts, assigned_filters[2])
-        if assigned_filters[1] != "all units":
-            filtered_accounts = filteron_unit(filtered_accounts, assigned_filters[1])
-        if assigned_filters[0]  != "all categories":
-            filtered_accounts = filteron_category(filtered_accounts, assigned_filters[0])
-        #filtered_accounts.sort_values(inpalace=True)
-        #filtered_accounts.set_index(["Category","RelatedUnit"],inplace=True)
+    assigned_filters = cumulative_input()
+    filtered_accounts = accounts.copy()
+    if assigned_filters[2] != "all times":
+        filtered_accounts = filteron_time(filtered_accounts, assigned_filters[2])
+    if assigned_filters[1] != "all units":
+        filtered_accounts = filteron_unit(filtered_accounts, assigned_filters[1])
+    if assigned_filters[0]  != "all categories":
+        filtered_accounts = filteron_category(filtered_accounts, assigned_filters[0])
+    filtered_accounts.reset_index(drop=True,inplace=True)
+    filtered_accounts.sort_values(by=[assigned_filters[3],"Time"],inplace=True)
+    cumulative_filter = filtered_accounts.groupby([assigned_filters[3]]).Amount.cumsum()
+    filtered_accounts = filtered_accounts.join(cumulative_filter,rsuffix= (" cumulated by "+ assigned_filters[3]))
+    filtered_accounts = filtered_accounts.join(filtered_accounts.Amount.cumsum(),rsuffix=" cumulated all")
+    filtered_accounts.set_index(assigned_filters[3:],inplace=True)
         
