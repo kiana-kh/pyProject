@@ -5,6 +5,54 @@
 #deal with nan in main program
 import pandas as pd
 from pandas import DataFrame as df
+"""def inputmech(prompts: dict, shortcut:str, results: list):
+    ###
+    Parameters
+    ----------
+    prompts : dictionary
+    consists of input prompts to use
+    shortcut : string
+    the string to indicate automatic mode. ie: "append" and "filterby"
+    results : list
+    the list that will be modified through user inputs and returned after
+    
+        
+    ###
+    
+    loop_break = "0"
+    while (loop_break == "0"):
+        try:
+            inputs=[]
+            inputs.extend(input(prompts[0]).split())
+            
+            if  inputs[0].lowercase() != shortcut:
+                #take input manually
+                
+                inputs.insert(1,input(prompts[int(inputs[0])-1]))
+                filters[int(inputs[0])-1]=tuple(inputs[1].split())    
+            elif inputs[0] == "filterby":
+                #take input automatically
+                filters=[]
+                for i in range(1,4):
+                    inputs[i]=tuple(inputs[i].split(","))
+                    ###if type(inputs[i]) != tuple:
+                        ###raise TypeError("incorrect input")
+                filters= inputs[1:4]
+                ##can be improved add except
+
+            else:
+                raise ValueError("incorrect input")
+                
+        except(ValueError,TypeError):
+            print("the input does not match the defined structure/value. please try again.")
+        if "skip" not in inputs :
+            print("{t[0]}\n{t[1]}{f[0]}\n{t[2]}{f[1]}\n{t[3]}{f[2]}\n\n{t[4]}".format(t=ending_prompt,f=filters))##can be improved add until and..
+            loop_break = input()
+        else:
+            break
+
+    
+"""
 def cumulative_input():
     """
     
@@ -34,11 +82,7 @@ def cumulative_input():
                    "if you want to add or change a filter please enter 0. otherwise enter any character to continue:"]
     ##can be improved add help                   
     loop_break = "0"
-    filters=["all categories","all units","all times","RelatedUnit"]
-    #1dropped idea 
-    #1 filters_dictionary:{"categories": [False] + data_dictionary["categories"],
-    #1                     "number": [False] + data_dictionary["numbers"],
-    #1                     "date": [False]}
+    filters=["All categories","All units","All times","RelatedUnit"]
     
     while (loop_break == "0"):
         try:
@@ -46,14 +90,16 @@ def cumulative_input():
             inputs.extend(input(first_level_prompt).split())
             
             if  inputs[0] != "filterby":
+                #take input manually
                 inputs.insert(1,input(second_level_prompt[int(inputs[0])-1]))
                 filters[int(inputs[0])-1]=tuple(inputs[1].split())    
             elif inputs[0] == "filterby":
+                #take input automatically
                 filters=[]
                 for i in range(1,4):
-                    inputs[i]=eval(inputs[i])
-                    if type(inputs[i]) != tuple:
-                        raise TypeError("incorrect input")
+                    inputs[i]=tuple(inputs[i].split(","))
+                    ###if type(inputs[i]) != tuple:
+                        ###raise TypeError("incorrect input")
                 filters= inputs[1:4]
                 ##can be improved add except
 
@@ -114,7 +160,7 @@ def filteron_category(data,categories: tuple):
     """
     
     newdf = data[data["Category"].isin(categories)]
-    newdf.reset_index(inplace=True)
+    newdf.reset_index(inplace=True,drop=True)
     
     return newdf
 
@@ -136,26 +182,28 @@ def filteron_unit(data,number: tuple):
 
     """           
     newdf = data[data["RelatedUnit"].isin(number)]
-    newdf.reset_index(inplace=True)
+    newdf.reset_index(inplace=True,drop=True)
     
     return newdf        
 
 
-#def cumulative_filter(maindict:dict):
+def cumulative_filter(maindict:dict):
     with open("accounts.csv") as data:
         accounts = pd.read_csv(data)
     assigned_filters = cumulative_input()
     filtered_accounts = accounts.copy()
-    if assigned_filters[2] != "all times":
+    if assigned_filters[2] != "All times":
         filtered_accounts = filteron_time(filtered_accounts, assigned_filters[2])
-    if assigned_filters[1] != "all units":
+    if assigned_filters[1] != "All units":
         filtered_accounts = filteron_unit(filtered_accounts, assigned_filters[1])
-    if assigned_filters[0]  != "all categories":
+    if assigned_filters[0]  != "All categories":
         filtered_accounts = filteron_category(filtered_accounts, assigned_filters[0])
-    filtered_accounts.reset_index(drop=True,inplace=True)
+    
     filtered_accounts.sort_values(by=[assigned_filters[3],"Time"],inplace=True)
+    filtered_accounts = filtered_accounts[['RelatedUnit', 'Category', 'Amount', 'Time', 'Subcategory', 'ResponsibleUnit', 'Describtion'] ]
     cumulative_filter = filtered_accounts.groupby([assigned_filters[3]]).Amount.cumsum()
     filtered_accounts = filtered_accounts.join(cumulative_filter,rsuffix= (" cumulated by "+ assigned_filters[3]))
     filtered_accounts = filtered_accounts.join(filtered_accounts.Amount.cumsum(),rsuffix=" cumulated all")
     filtered_accounts.set_index(assigned_filters[3:],inplace=True)
-        
+    #print('{:*^40}'.format('Table'))
+    
