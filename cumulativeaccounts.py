@@ -5,54 +5,7 @@
 #deal with nan in main program
 import pandas as pd
 from pandas import DataFrame as df
-"""def inputmech(prompts: dict, shortcut:str, results: list):
-    ###
-    Parameters
-    ----------
-    prompts : dictionary
-    consists of input prompts to use
-    shortcut : string
-    the string to indicate automatic mode. ie: "append" and "filterby"
-    results : list
-    the list that will be modified through user inputs and returned after
-    
-        
-    ###
-    
-    loop_break = "0"
-    while (loop_break == "0"):
-        try:
-            inputs=[]
-            inputs.extend(input(prompts[0]).split())
-            
-            if  inputs[0].lowercase() != shortcut:
-                #take input manually
-                
-                inputs.insert(1,input(prompts[int(inputs[0])-1]))
-                filters[int(inputs[0])-1]=tuple(inputs[1].split())    
-            elif inputs[0] == "filterby":
-                #take input automatically
-                filters=[]
-                for i in range(1,4):
-                    inputs[i]=tuple(inputs[i].split(","))
-                    ###if type(inputs[i]) != tuple:
-                        ###raise TypeError("incorrect input")
-                filters= inputs[1:4]
-                ##can be improved add except
 
-            else:
-                raise ValueError("incorrect input")
-                
-        except(ValueError,TypeError):
-            print("the input does not match the defined structure/value. please try again.")
-        if "skip" not in inputs :
-            print("{t[0]}\n{t[1]}{f[0]}\n{t[2]}{f[1]}\n{t[3]}{f[2]}\n\n{t[4]}".format(t=ending_prompt,f=filters))##can be improved add until and..
-            loop_break = input()
-        else:
-            break
-
-    
-"""
 def cumulative_input():
     """
     
@@ -64,12 +17,12 @@ def cumulative_input():
     Returns
     -------
     filters_dictionary : dict
-        dictionary with declared filtering factor.
+        dictionary with filtering factor.
 
     """
     #structure for filterby:"filterby (tuple of categories names in string format) (tuple of desired unit numbers integers) (tuple of begining date and ending date with / and in string format)"
     #example:       category         unit               dates                  index by
-    #filterby ("Elevator","Bills") (2,5,3,1) ("1399/03/24","1399/05/07") skip RelatedUnit
+    #filterby Elevator,Bills:*Water,*Gas,Repairment 2,5,3,1 1399/03/24 1399/05/07 skip RelatedUnit
     first_level_prompt = "please enter the number of Filtering mode or type declared filtering structure: \n1.Based on categories\n"\
                          "2.based on building number\n3.based on dates\n"
     second_level_prompt = ["please enter desired categories in one line, separating them with space:\n",
@@ -96,12 +49,10 @@ def cumulative_input():
             elif inputs[0] == "filterby":
                 #take input automatically
                 filters=[]
-                for i in range(1,4):
+                for i in range(1,5):
                     inputs[i]=tuple(inputs[i].split(","))
-                    ###if type(inputs[i]) != tuple:
-                        ###raise TypeError("incorrect input")
-                filters= inputs[1:4]
-                ##can be improved add except
+                filters= inputs[1:5]
+                
 
             else:
                 raise ValueError("incorrect input")
@@ -123,7 +74,7 @@ def cumulative_input():
     return filters
               
                 
-def filteron_time(data,time:tuple):
+def filteron_time(data,timelimit:tuple):
     """
     
     Parameters
@@ -131,7 +82,7 @@ def filteron_time(data,time:tuple):
     data : dataframe 
         containing accounts.
     time : tuple
-        containing two dates of datetime.date type.
+        containing two dates of string type.
     ----------
     
     Returns 
@@ -140,7 +91,12 @@ def filteron_time(data,time:tuple):
         containing filtered accounts 
 
     """
-             
+    #timelimit=("1399-04-15","1399-06-10")
+    int(time[0].replace("-",""))
+    timeseries = accounts[["Time"]].str.replace("-","")
+    timeseries= pd.to_numeric(timeseries)
+    data= data[(timeseries >= int(timelimit[0].replace("-",""))) & (timeseries <= int(timelimit[1].replace("-","")))]
+    return data
     
 def filteron_category(data,categories: tuple):
     """
