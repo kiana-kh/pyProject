@@ -6,8 +6,9 @@ time1=input('enter fist time=')
 time2=input('enter second time=')
 
 #open the file
+d['time']=pd.to_datetime['time']
+d= d.sort_values(by='time')
 filteron_time(dataframe,(time1,time2))
-d.sort_values(by='time')
 d=d[(d['number']== number)] 
 y=d.groupby('amount').sum()
 print(y)
