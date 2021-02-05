@@ -11,8 +11,8 @@ def financial_balance():
     d= d.sort_values(by='time')
     filteron_time(dataframe,(time1,time2))
     d=d[(d['number']== number)] 
-    y=d.groupby('amount').sum()
-    return(y)
+    financialbalance = d.groupby('amount').sum()
+    return(financialbalance)
 
 ############################################
 
@@ -20,11 +20,11 @@ import datetime as datetime
 def charge_estimate():
     number=input('enter a number of floor=')
     d=d[(d['number']== number)] 
-    z=accounts['time'].max()
-    z= datetime.fromisoformat(z)
-    w=z-timedelta(days=365)
-    accounts=filteron_time(accounts,(z.isoformat(),w.isoformat()))
-    a=accounts['Amount'].sum()
-    b=(a/12)*1.2  ######### 20%نرخ تورم    
-    return(b)
+    maxdates=accounts['time'].max()
+    maxdates= datetime.fromisoformat(maxdates)
+    records=maxdates-timedelta(days=365)
+    accounts=filteron_time(accounts,(maxdates.isoformat(),records.isoformat()))
+    summation=accounts['Amount'].sum()
+    chargeestimate=(summation/12)*1.2  ######### 20%نرخ تورم    
+    return(chargeestimate)
 
