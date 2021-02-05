@@ -42,7 +42,7 @@ def cumulative_input():
             
             if  inputs[0] != "filterby":
                 #take input manually
-                inputs.insert(1,input(second_level_prompt[int(inputs[0])-1]).title())
+                inputs.insert(1,input(second_level_prompt[int(inputs[0])-1]))
                 filters[int(inputs[0])-1]=inputs[1].split()
             elif inputs[0] == "filterby":
                 #take input automatically
@@ -65,10 +65,12 @@ def cumulative_input():
         else:
             break
         
-    for i in range(len(filters[0])-1):
+    for i in range(len(filters[0])):
         if "*" in filters[0][i]:
             filters[0].extend(filters[0][i][filters[0][i].find(":")+2:].split("*"))
             filters[0][i] = filters[0][i][:filters[0][i].find(":")]
+    filters[0]=[element.title() for element in filters[0]]
+    
     if "skip" not in inputs :
         base = int(input("choose which option to base the frame on it:\n1.Category\n2.Unit Number \n"))
         if base != 2:
@@ -165,5 +167,8 @@ def cumulative_filter(maindict:dict):
     filtered_accounts = filtered_accounts.join(cumulative_filter,rsuffix= (" cumulated by "+ assigned_filters[3]))
     filtered_accounts = filtered_accounts.join(filtered_accounts.Amount.cumsum(),rsuffix=" cumulated all")
     filtered_accounts.set_index(assigned_filters[3:],inplace=True)
+    return filtered_accounts
+    #pd.plotting.table()
     #print('{:*^40}'.format('Table'))
+    
     
