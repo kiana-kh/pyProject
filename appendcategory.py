@@ -1,5 +1,5 @@
-categories = ["Bill","Cleaning","Elevator","Parking","Repairment","Charge"]
-subcategories = {"Bill":["Water","Electricity","Gas","Tax"]}
+categories = ["Bills","Cleaning","Elevator","Parking","Repairment","Charge"]
+subcategories = {"Bills":["Water","Electricity","Gas","Tax"]}
            
 def category_input(categories,subcategories):
 
@@ -16,6 +16,7 @@ def category_input(categories,subcategories):
             if(input_category.isnumeric()):
                 if input_category=="0":
                     choosencategory = input_category
+                    
                 else :
                     choosencategory = categories[int(input_category)-1]
            
@@ -24,7 +25,7 @@ def category_input(categories,subcategories):
            
             else:
                 raise ValueError 
-        
+            loop = False
         except(ValueError,IndexError):
             print("wrong input. please check for your spelling or wheter your number or name is within range.")
     
