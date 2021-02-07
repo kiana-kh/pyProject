@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 import zohreh
 import appendcategory
 import input_apartment
@@ -76,8 +76,7 @@ def append_manually(categories,subcategories, d):
             "Describtion" : inputs["describtion"]}
     dataframe = pd.DataFrame(data)
     
-    with open("data/accounts.csv", "a") as file:
-        file.write(pd.DataFrame.to_csv(dataframe,index=False,line_terminator="\n"))
+
 
 def get_report(data,n):
     if n==1:
