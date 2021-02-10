@@ -41,7 +41,7 @@ def sahm1(d):
     plt.xlabel('Amount')
     plt.ylabel('Bills')
     plt.barh(zirdastebandi[ np.argsort(mablagh)],np.sort(mablagh) )
-
+    plt.show()
     
 
     water=water/Ghabz
