@@ -6,7 +6,7 @@ import pandas as pd
 from pandas import DataFrame as df
 import matplotlib
 import matplotlib.pyplot as plt
-import  Responsible_Apartment
+import  ResAp
 import numpy as np
 def cathandle(x):
     #creates a column showing both category and subcategory if that makes it nan only category is shown 
@@ -86,7 +86,7 @@ def exspenseflow_input():
         
     if "skip" not in inputs :
         options={"Based on diffrent Category":"Category","Based on diffrent Units": "RelatedUnit","Show all building expenses flow":"All"}
-        filters.insert(3,Responsible_Apartment.selectFromDict(options, "the method for plotting")  )      
+        filters.insert(3,ResAp.selectFromDict(options, "the method for plotting")  )      
     else:
         filters.append(inputs[5])
     
