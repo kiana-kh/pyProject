@@ -96,10 +96,10 @@ def append_manually(categories,subcategories, d):
 
 def get_report(data,n):
     if n==1:
-        #im tired:(
-        number = [int(i) for i in input('enter numbers of unit=\n').split()]
-        time1=input('enter first time=')
-        time2=input('enter second time=')
+        #takes arguments
+        number = [int(i) for i in input('enter unit numbers:\n').split()]
+        time1=input('enter start date:(eg.1399-04-06)\n')
+        time2=input('enter end date:(eg.1399-08-08)\n')
         project_f.financial_balance(BuildingData,number,time1,time2)
     if n==2:
         dataframe_to_csv.Getdatabetweentwodates(data)
