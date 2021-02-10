@@ -172,9 +172,9 @@ def cumulative_filter(accounts):
         filtered_accounts = filteron_unit(filtered_accounts, assigned_filters[1])
     if assigned_filters[0]  != ["Allcategories"]:
         filtered_accounts = filteron_category(filtered_accounts, assigned_filters[0])
-    
-    filtered_accounts.sort_values(by=["Time"],inplace=True)
-
+  filtered_accounts["Timeforsort"] = pd.to_numeric(filtered_accounts["Time"].str.replace("-",""))
+    filtered_accounts.sort_values(by=["Timeforsort"],inplace=True)
+    filtered_accounts.reset_index(inplace=True)
     y_values={}
     if (assigned_filters[3] != "All"):
         if (assigned_filters[3] == "Category"):
@@ -190,19 +190,29 @@ def cumulative_filter(accounts):
         #calculates all accounts cumulative value
         filtered_accounts = filtered_accounts.join(filtered_accounts.Amount.cumsum(),rsuffix=" cumulated by All")
         y_values["All"]=filtered_accounts[["Time","Amount cumulated by "+ assigned_filters[3]]]
-    
-
-    fig = plt.figure(figsize=(12,8))
-    plt.xticks(rotation=70)
-    for i in y_values:
-        #fix dates and createsplot
-        plt.plot( y_values[i]["Time"], y_values[i]["Amount cumulated by "+ assigned_filters[3]],label=i,marker=".")
-    ax = plt.axes()
-    ax.xaxis.set_major_locator(plt.MaxNLocator(15))
-    plt.legend()
+    if (assigned_filters[3] != "All"):
+        fig, axs = plt.subplots(len(y_values),figsize=(5,30))
+        n=0
+        for i in y_values:
+            #fix dates and createsplot
+            axs[n].plot( y_values[i]["Time"], y_values[i]["Amount cumulated by "+ assigned_filters[3]],label=i,marker=".")
+            axs[n].tick_params(axis='x', rotation= 70)
+            #plt.xticks(rotation=90)
+            axs[n].xaxis.set_major_locator(plt.MaxNLocator(15))
+            axs[n].set_title(i)
+            n+=1
+        fig.tight_layout()
+    else:
+        fig = plt.figure(figsize=(12,8))
+        plt.xticks(rotation=70)
+        for i in y_values:
+            #fix dates and createsplot
+            plt.plot( y_values[i]["Time"], y_values[i]["Amount cumulated by "+ assigned_filters[3]],label=i,marker=".")
+        ax = plt.axes()
+        ax.xaxis.set_major_locator(plt.MaxNLocator(15))
+        plt.legend()
     print("do you want to save the plot?(True/False)")
     plt.show()
     t=bool(input())
     if t:
         fig.savefig("user/plot.png")
-
