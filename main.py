@@ -47,11 +47,11 @@ def append_manually(categories,subcategories, d):
             print("""enter the division method:
                   1 Divided according to the number of inhabitants of each unit
                   2 Divided by floor number
-                  3 Division according to the area of each unit
+                  3 Divided according to the area of each unit
                   4 Divided by the number of parking spaces
                   5 Divide evenly
-                  6 devided by default
-                  7 devide by percents
+                  6 Devided by default
+                  7 Devide by percents that you enter for each unit
                   0 Back\n""")
             inputs["devisor"] = input()
             BuildingDataRelevent, inputs["All units"]  = name.filterunits(BuildingData,inputs["related"])
