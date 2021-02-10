@@ -172,7 +172,7 @@ def cumulative_filter(accounts):
         filtered_accounts = filteron_unit(filtered_accounts, assigned_filters[1])
     if assigned_filters[0]  != ["Allcategories"]:
         filtered_accounts = filteron_category(filtered_accounts, assigned_filters[0])
-  filtered_accounts["Timeforsort"] = pd.to_numeric(filtered_accounts["Time"].str.replace("-",""))
+    filtered_accounts["Timeforsort"] = pd.to_numeric(filtered_accounts["Time"].str.replace("-",""))
     filtered_accounts.sort_values(by=["Timeforsort"],inplace=True)
     filtered_accounts.reset_index(inplace=True)
     y_values={}
