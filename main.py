@@ -17,6 +17,7 @@ print("Hello. welcome")
 categories = ["Bills","Cleaning","Elevator","Parking","Repairment","Charge","Other"]
 subcategories = {"Bills":["Water","Electricity","Gas","Tax"]}
 intervals=(300000, 900000, 2000000)
+directory="data/accounts.csv"
 with open("data/Building.json","r") as data:
     BuildingData = json.load(data)
     
@@ -91,7 +92,7 @@ def append_manually(categories,subcategories, d):
             "AllRelatedUnits" : str(inputs["All units"]),
             "Describtion" : inputs["describtion"]}
     dataframe = pd.DataFrame(data) 
-    dataframe_to_csv.csvfile("0000-00-00","9999-99-99", dataframe, "data/accounts.csv",False,"a")
+    dataframe_to_csv.csvfile("0000-00-00","9999-99-99", dataframe, directory,False,"a")
 
 
 def get_report(data,n):
@@ -117,7 +118,7 @@ def get_report(data,n):
         print("Estimated charge per month of unit {} in next year is : {:,}".format(estimate[0],estimate[1]))
 
 while(1):
-    with open("data/data3.csv") as data:
+    with open(directory) as data:
         accounts = pd.read_csv(data)
         balance = project_f.financial_balance(accounts,list(BuildingData.keys()),accounts['Time'].min(),accounts['Time'].max())
         status = status_f.get_status(intervals[0],intervals[1],intervals[2],balance)
@@ -140,8 +141,15 @@ while(1):
         get_report(accounts,int(selection_report))
         
     if selection_main=="3":
-        intervals = StatusColour.StatusColours()
-              
+        options = {"Change Directory" : "1","Change Status intervals" : "2"}
+        select_setting = ResAp.selectFromDict(options, "setting")
+        if select_setting == "1":
+            directory=input("enter The directory for appending and reporting:\n")
+        elif select_setting == "2":
+            intervals = StatusColour.StatusColours()
+            
+    if selection_main=="4":
+        break
         
         
         
