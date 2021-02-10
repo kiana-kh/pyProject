@@ -1,15 +1,17 @@
-b=input('if all units are relatedunit type 0,else type 1')
-def append_relatedunit():
-    if b==0:
-        print(d[['number']])
-    elif b==1:
-        relatedunit=input('enter relatedunit')
-        relatedunitt=[]
-        maax=d['number'].max()
-        def related_unit():
-            if relatedunit > maax:
+
+
+def append_relatedunit(data,allunits):
+    
+    if allunits==0:
+        return(list(data.keys()))
+    elif allunits==1:
+        relatedunit=input('enter related units:\n').split(',')
+        for e in relatedunit:
+            if e not in list(data.keys()):
                 print('wrong,try again')
-                return(related_unit)
-            else:
-                relatedunitt.append(relatedunit).split(',') 
-          
+                return(append_relatedunit(data,0))
+        return relatedunit
+    else:
+        print('wrong,try again')
+        return "repeat"
+

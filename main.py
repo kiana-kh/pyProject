@@ -1,20 +1,25 @@
-﻿# -*- coding: utf-8 -*-
-import zohreh
+import time_and_category
 import appendcategory
-import input_apartment
-import z
+import ResAp
 import project_f
 import pandas as pd
 import cumulativeaccounts
-#responsible 
-#zohreh start option from 1
-#input_apartment add back option
+import json
+import numpy as np
+import percentage_numbers
+import relatedunit
+import name
+import dataframe_to_csv
+import sahm
+import StatusColour
+import status_f
 print("Hello. welcome")
-categories = ["Bills","Cleaning","Elevator","Parking","Repairment","Charge"]
+categories = ["Bills","Cleaning","Elevator","Parking","Repairment","Charge","Other"]
 subcategories = {"Bills":["Water","Electricity","Gas","Tax"]}
-d={1:['id1',2,1,125,1],2:['id2',1,1,75,1],3:['id3',4,2,125,1],4:['id4',4,2,75,1],5:['id5',7,3,125,2],
-   6:['id6',3,3,75,1],7:['id7',2,4,125,1],8:['id8',6,4,75,1],9:['id9',5,5,125,2],10:['id10',5,5,75,1]}
-len(d)
+intervals=(300000, 900000, 2000000)
+with open("data/Building.json","r") as data:
+    BuildingData = json.load(data)
+    
 def append_manually(categories,subcategories, d):
     n=0
     inputs={}
@@ -23,7 +28,7 @@ def append_manually(categories,subcategories, d):
             break
         if n==0:  
             inputs[n]=input('if you want to enter the date and time manually, enter 1 and otherwise enter 2: \n')
-            inputs["time"]= zohreh.time(int(inputs[n])-1)
+            inputs["time"]= time_and_category.time(int(inputs[n])-1)
         if n==1:
             inputs["amount"] = input("enter the amount appended:\n")
             if not (inputs["amount"].isnumeric()):
@@ -34,21 +39,27 @@ def append_manually(categories,subcategories, d):
         if n==3:
             inputs["subcategory"] = appendcategory.subcategory_input(categories,subcategories,inputs["category"])
         if n==4:   
-            inputs["responsible"] = input_apartment.apartment('Responsible Apartment')
+            inputs["responsible"] = ResAp.GetThecsvasDict()
         if n==5:
-             inputs["related"]= [1,2,4,6,7]##input("related")
+             inputs["related"] = relatedunit.append_relatedunit(BuildingData,int(input('if all units are relatedunit type 0,else type 1:  ')))
         if n==6:
             print("""enter the division method:
                   1 Divided according to the number of inhabitants of each unit
                   2 Divided by floor number
-                  3 Division according to the area of ​​each unit
+                  3 Division according to the area of each unit
                   4 Divided by the number of parking spaces
                   5 Divide evenly
                   6 devided by default
+                  7 devide by percents
                   0 Back\n""")
             inputs["devisor"] = input()
-            if (int(inputs["devisor"]) >=1 and int(inputs["devisor"]) <= 7):
-                inputs["amountdevided"] = zohreh.f(z.g(d,inputs["related"]),int(inputs["amount"]),int(inputs["devisor"]),inputs["category"] + str(inputs["subcategory"]))
+            BuildingDataRelevent, inputs["All units"]  = name.filterunits(BuildingData,inputs["related"])
+            if (int(inputs["devisor"]) >=1 and  int(inputs["devisor"]) <= 6):
+                inputs["amountdevided"] = time_and_category.f(BuildingDataRelevent,int(inputs["amount"]),int(inputs["devisor"]),inputs["category"] + str(inputs["subcategory"]))
+                inputs["amountdevided"] = list(inputs["amountdevided"].keys())
+            elif (inputs["devisor"] == "7"):
+                inputs["amountdevided"] = (np.array(percentage_numbers.percentage_input(BuildingDataRelevent)) * int(inputs["amount"]) /100).tolist()
+            
             elif (inputs["devisor"] == "0"):
                 pass
             else: 
@@ -56,7 +67,9 @@ def append_manually(categories,subcategories, d):
                 continue
         if n==7:
             inputs["describtion"] = input("enter describtion:\n")
+        
         if "0" in inputs.values():
+            #for Back commands
             n -= 1
             inputs.popitem()
             #needs python 3.7!
@@ -64,18 +77,21 @@ def append_manually(categories,subcategories, d):
             continue
         else:
             n += 1
+    
+    
     if n == -1:
         return#going back to main window
-    data = {"Amount" : list(inputs["amountdevided"].values()),
+    data = {"Amount" : inputs["amountdevided"],
             "Time" : inputs["time"],
             "Category" : inputs["category"],
             "Subcategory" : inputs["subcategory"],
             "ResponsibeUnit" : inputs["responsible"],
-            "RelatedUnit" : list(inputs["amountdevided"].keys()),
+            "RelatedUnit" : inputs["related"],
             "TransactionAmount" : int(inputs["amount"]),
+            "AllRelatedUnits" : str(inputs["All units"]),
             "Describtion" : inputs["describtion"]}
-    dataframe = pd.DataFrame(data)
-    
+    dataframe = pd.DataFrame(data) 
+    dataframe_to_csv.csvfile("0000-00-00","9999-99-99", dataframe, "data/accounts.csv",False,"a")
 
 
 def get_report(data,n):
@@ -84,30 +100,35 @@ def get_report(data,n):
         number = [int(i) for i in input('enter numbers of unit=\n').split()]
         time1=input('enter first time=')
         time2=input('enter second time=')
-        project_f.financial_balance(dataframe,number,time1,time2)
-    if n==1:
-        pass
+        project_f.financial_balance(BuildingData,number,time1,time2)
+    if n==2:
+        dataframe_to_csv.Getdatabetweentwodates(data)
     if n==3:
-        pass
+        options = {"expense portions of subcategories of Bills" : "1","expense portions of Categories" : "2"}
+        select = ResAp.selectFromDict(options, "the portion report")
+        if select=="1":
+            print(sahm.sahm1(data))
+        elif select=="2":
+            print(sahm.sahm2(data))
     if n==4:
-        cumulativeaccounts.cumulative_filter()
+        cumulativeaccounts.cumulative_filter(data)
     if n==5:
         estimate=project_f.charge_estimate(accounts)
-        print("Estimated charge per month of unit {} is : {:,}".format(estimate[0],estimate[1]))
+        print("Estimated charge per month of unit {} in next year is : {:,}".format(estimate[0],estimate[1]))
 
 while(1):
-    with open("accounts.csv") as data:
+    with open("data/data3.csv") as data:
         accounts = pd.read_csv(data)
-        balance = project_f.financial_balance(accounts,list(d.keys()),accounts['Time'].min(),accounts['Time'].max())
-        #status = get_status(balance,Green,Orange,Red)
-    print("\n\n\n\nCurrent Status: " + str(balance))
+        balance = project_f.financial_balance(accounts,list(BuildingData.keys()),accounts['Time'].min(),accounts['Time'].max())
+        status = status_f.get_status(intervals[0],intervals[1],intervals[2],balance)
+    print("\n\n\n\nCurrent Status: " + str(status))
     selection_main = input("""please select: 
                           1 append data
                           2 report 
                           3 setting
                           4 exit\n""")
     if selection_main=="1":
-        append_manually(categories, subcategories, d)
+        append_manually(categories, subcategories, BuildingData)
     if selection_main=="2":
         selection_report = input("""Please Choose:
                                  1 Balance Report
@@ -118,9 +139,9 @@ while(1):
                                  0 Back\n""")
         get_report(accounts,int(selection_report))
         
-                  
+    if selection_main=="3":
+        intervals = StatusColour.StatusColours()
               
-        
         
         
         
