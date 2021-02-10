@@ -23,7 +23,7 @@ def financial_balance(dataframe,number,time1,time2):
 
 import datetime as datetime
 def charge_estimate(dataframe):
-    number=int(input('enter a number of floor='))
+    number=int(input('enter the number of unit:\n'))
     dataframe=dataframe[(dataframe['RelatedUnit']== number)] 
     maxdates = dataframe['Time'].max()
     maxdates= datetime.date.fromisoformat(maxdates)
