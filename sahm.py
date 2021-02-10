@@ -38,15 +38,17 @@ def sahm1(d):
    
     font = {'family' : 'normal','size' : 14}
     plt.rc('font', **font)
-    plt.xlabel('Mablagh')
-    plt.ylabel('Ghabz')
-    plt.barh(zirdastebandi[ np.argsort(mablagh)],np.sort(mablagh) )
+    plt.xlabel('Amount')
+    plt.ylabel('Bills')
+    plt.barh(zirdastebandi[ np.argsort(Amount)],np.sort(Amount) )
 
     
+
     water=water/Ghabz
     bargh=bargh/Ghabz
     gaz=gaz/Ghabz
     avarez=avarez/Ghabz
+    
     
     dictionary={"Water":water, "Electricity":bargh, "Gas":gaz, "Tax":avarez}
     return(dictionary)
@@ -61,6 +63,7 @@ def sahm2(d):
     for n in range(len(b)):
         b[n]=0
         for i in range(len(d.index)):
+
             if d['Category'][i]==a[n]:
                b[n]=b[n]+d['Amount'][i]
     b=list(np.array(b)/Hazineh)
@@ -80,4 +83,5 @@ def sahm2(d):
         dictionary[a[i]]= b[i]
         
     return(dictionary)
+
 

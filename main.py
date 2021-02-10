@@ -1,4 +1,4 @@
-﻿import time_and_category
+import time_and_category
 import appendcategory
 import ResAp
 import project_f
@@ -142,7 +142,6 @@ while(1):
     if selection_main=="3":
         intervals = StatusColour.StatusColours()
               
-        
         
         
         

@@ -1,6 +1,7 @@
 from cumulativeaccounts import filteron_time
 import pandas as pd
 
+
   
 #number = [input('enter a number of floor=')]
 #time1=input('enter first time=')
@@ -10,8 +11,10 @@ def financial_balance(dataframe,number,time1,time2):
     
     dataframe=dataframe[(dataframe['RelatedUnit'].isin(number))] 
     #dataframe['Time']=pd.to_datetime['Time']
+
     #dataframe= dataframe.sort_values(by='Time')
     dataframe=filteron_time(dataframe,(time1,time2))
+
     
     financialbalance = dataframe['Amount'].sum()
     return(financialbalance)

@@ -1,6 +1,7 @@
+
 # -*- coding: utf-8 -*-
-#should use comments properly
-#data_dictionary= {"numbers": [1,2,3,4,5,6],"categories": ["Bills","Elevator","Charge","Cleaning","Repairment"]}
+
+
 import pandas as pd
 from pandas import DataFrame as df
 import matplotlib
