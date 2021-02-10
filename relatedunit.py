@@ -5,7 +5,7 @@ def append_relatedunit(data,allunits):
     if allunits==0:
         return(list(data.keys()))
     elif allunits==1:
-        relatedunit=input('enter related units:\n').split(',')
+        relatedunit=input('enter related units seperated by comma:\n').split(',')
         for e in relatedunit:
             if e not in list(data.keys()):
                 print('wrong,try again')
