@@ -40,7 +40,7 @@ def sahm1(d):
     plt.rc('font', **font)
     plt.xlabel('Amount')
     plt.ylabel('Bills')
-    plt.barh(zirdastebandi[ np.argsort(Amount)],np.sort(Amount) )
+    plt.barh(zirdastebandi[ np.argsort(mablagh)],np.sort(mablagh) )
 
     
 
