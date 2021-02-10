@@ -5,7 +5,7 @@ def csvfile(startdate,enddate, df, name,bheader,smode):
     df.to_csv(name,header=bheader,mode=smode)
 
 def Getdatabetweentwodates(df): 
-    print("Enter the Required Dates in this form: 2000-06-02")
+    print("Enter the Required Dates in this form: 1398-06-02")
     startdate = str(input("Enter the Start Date:"))
     enddate = str(input("Enter the End Date:"))
     filename = 'user/' + ('Report Between {} and {}.csv'.format(startdate,enddate))
