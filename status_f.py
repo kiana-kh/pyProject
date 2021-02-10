@@ -7,5 +7,5 @@ def get_status(a:int,b:int,c:int,d:int):
     elif d>b and d<=c :
         return "Red"
     elif d>c:
-        return "Insane"
+        return "Black"
 
