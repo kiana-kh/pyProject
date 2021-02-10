@@ -3,8 +3,17 @@
 #data_dictionary= {"numbers": [1,2,3,4,5,6],"categories": ["Bills","Elevator","Charge","Cleaning","Repairment"]}
 import pandas as pd
 from pandas import DataFrame as df
-
-def cumulative_input():
+import matplotlib
+import matplotlib.pyplot as plt
+import  Responsible_Apartment
+import numpy as np
+def cathandle(x):
+    #creates a column showing both category and subcategory if that makes it nan only category is shown 
+    if np.isnan(x["Subcategory"]):
+        return x["Category"]
+    else:
+        return x['Category'] + ":" + x["Subcategory"]
+def exspenseflow_input():
     """
     
     Description
@@ -19,63 +28,67 @@ def cumulative_input():
 
     """
     #structure for filterby:"filterby (tuple of categories names in string format) (tuple of desired unit numbers integers) (tuple of begining date and ending date with / and in string format)"
-    #example:       category         unit               dates                  index by
-    #filterby Elevator,Bills:*Water*Gas,Repairment 2,5,3,1 1399/03/24 1399/05/07 skip RelatedUnit
+    #example:       category                        unit           dates                  index by
+    #filterby Elevator,Bills:*Water*Gas,Repairment 2,5,3,1 1399-03-05,1400-01-01 skip RelatedUnit
     first_level_prompt = "please enter the number of Filtering mode or type declared filtering structure: \n1.Based on categories\n"\
                          "2.based on building number\n3.based on dates\n"
-    second_level_prompt = ["please enter desired categories in one line, separating them with space:\n",
-                           "please enter desired building units in one line, separating them with space:\n",
-                           "please enter desired time period with '-'. separate the dates with space:\n"]   
+    second_level_prompt = ["please enter desired categories in one line, separating them with space:\n(eg.Elevator Bills:*Water*Gas)\n",
+                           "please enter desired building units in one line, separating them with space:\n(eg.1 2 3)\n",
+                           "please enter desired time period with '-'. separate the dates with space:\n(eg.1399-04-05 1399-05-05)\n"]   
     ending_prompt=["You have choosen the following filters: ",
                    "categories of accounts that will be reported: ",
                    "building units whom the accounts refer to: ",
                    "time period which the accounts have taken place on: ",
                    "if you want to add or change a filter please enter 0. otherwise enter any character to continue:"]
-    ##can be improved add help                   
+                  
     loop_break = "0"
-    filters=["All categories","All units","All times","RelatedUnit"]
+    filters=[["Allcategories"],["Allunits"],["Alltimes"],"RelatedUnit"]
     
     while (loop_break == "0"):
         try:
             inputs=[]
-            inputs.extend(input(first_level_prompt).split())
-            
-            if  inputs[0] != "filterby":
-                #take input manually
-                inputs.insert(1,input(second_level_prompt[int(inputs[0])-1]).title())
-                filters[int(inputs[0])-1]=inputs[1].split()
-            elif inputs[0] == "filterby":
+            inputs.extend(input("_"*30 +"\n" +first_level_prompt).split(" "))
+        
+            if inputs[0] == "filterby":
                 #take input automatically
                 filters=[]
-                for i in range(1,5):
+                for i in range(1,4):
                     inputs[i]=inputs[i].split(",")
-                filters= inputs[1:5]
-                
+                filters= inputs[1:4]
+            elif  int(inputs[0])>=0 and int(inputs[0])<=3:
+                #take input manually
+                inputs.insert(1,input(second_level_prompt[int(inputs[0])-1]))
+                filters[int(inputs[0])-1]=inputs[1].split()
+            
 
             else:
                 raise ValueError("incorrect input")
                 
-        except(ValueError,TypeError):
+        except(ValueError,TypeError,IndexError):
             print("the input does not match the defined structure/value. please try again.")
             
         #prints report    
         if "skip" not in inputs :
-            print("{t[0]}\n{t[1]}{f[0]}\n{t[2]}{f[1]}\n{t[3]}{f[2]}\n\n{t[4]}".format(t=ending_prompt,f=filters))##can be improved add until and..
+            print("_"*30 + "\n\n{t[0]}\n{t[1]}{f[0]}\n{t[2]}{f[1]}\n{t[3]}{f[2]}\n\n{t[4]}".format(t=ending_prompt,f=filters))
             loop_break = input()
         else:
             break
+    if ["Allcategories"] != filters[0]:
+        for i in range(len(filters[0])):
+            # makes subcategories a sole item of list  
+            if "*" in filters[0][i]:
+                filters[0].extend(filters[0][i][filters[0][i].find(":")+2:].split("*"))
+                filters[0][i] = filters[0][i][:filters[0][i].find(":")]
+                filters[0]=[element.title() for element in filters[0]]
+        #makes first letter capital
+        filters[0]=[element.title() for element in filters[0]]
         
-    for i in range(len(filters[0])-1):
-        if "*" in filters[0][i]:
-            filters[0].extend(filters[0][i][filters[0][i].find(":")+2:].split("*"))
-            filters[0][i] = filters[0][i][:filters[0][i].find(":")]
     if "skip" not in inputs :
-        base = int(input("choose which option to base the frame on it:\n1.Category\n2.Unit Number \n"))
-        if base != 2:
-            filters[3] = "Category" 
-            
+        options={"Based on diffrent Category":"Category","Based on diffrent Units": "RelatedUnit","Show all building expenses flow":"All"}
+        filters.insert(3,Responsible_Apartment.selectFromDict(options, "the method for plotting")  )      
     else:
         filters.append(inputs[5])
+    
     return filters
               
                 
@@ -147,23 +160,48 @@ def filteron_unit(data,number: tuple):
     return newdf        
 
 
-def cumulative_filter(maindict:dict):
-    with open("accounts.csv") as data:
-        accounts = pd.read_csv(data)
-    assigned_filters = cumulative_input()
+def cumulative_filter(accounts):
+    accounts = accounts[accounts["Category"] != "Charge"]
+    assigned_filters = exspenseflow_input()
     filtered_accounts = accounts.copy()
-    if assigned_filters[2] != "All times":
-        filtered_accounts = filteron_time(filtered_accounts, assigned_filters[2])
-    if assigned_filters[1] != "All units":
+    
+    if assigned_filters[2] != ["Alltimes"]:
+        filtered_accounts = filteron_time(filtered_accounts,( assigned_filters[2][0], assigned_filters[2][1]))
+    if assigned_filters[1] != ["Allunits"]:
         filtered_accounts = filteron_unit(filtered_accounts, assigned_filters[1])
-    if assigned_filters[0]  != "All categories":
+    if assigned_filters[0]  != ["Allcategories"]:
         filtered_accounts = filteron_category(filtered_accounts, assigned_filters[0])
     
-    filtered_accounts.sort_values(by=[assigned_filters[3],"Time"],inplace=True)
-    filtered_accounts = filtered_accounts[['RelatedUnit', 'Category', 'Amount', 'Time', 'Subcategory', 'ResponsibleUnit', 'Describtion'] ]
-    cumulative_filter = filtered_accounts.groupby([assigned_filters[3]]).Amount.cumsum()
-    filtered_accounts = filtered_accounts.join(cumulative_filter,rsuffix= (" cumulated by "+ assigned_filters[3]))
-    filtered_accounts = filtered_accounts.join(filtered_accounts.Amount.cumsum(),rsuffix=" cumulated all")
-    filtered_accounts.set_index(assigned_filters[3:],inplace=True)
-    #print('{:*^40}'.format('Table'))
+    filtered_accounts.sort_values(by=["Time"],inplace=True)
+
+    y_values={}
+    if (assigned_filters[3] != "All"):
+        if (assigned_filters[3] == "Category"):
+            filtered_accounts["CatandSub"]=(filtered_accounts["Category"] +":" +filtered_accounts["Subcategory"]).fillna(filtered_accounts["Category"])
+            assigned_filters[3]="CatandSub"
+        #calculates cumulative sum based on filter and puts it in dataframe
+        cumulative_filter = filtered_accounts.groupby([assigned_filters[3]]).Amount.cumsum()
+        filtered_accounts = filtered_accounts.join(cumulative_filter,rsuffix= (" cumulated by "+ assigned_filters[3]))
+        #creates cumulative values for each category/unit to use in y axis
+        for i in set(filtered_accounts[assigned_filters[3]]):
+            y_values[i]=filtered_accounts[filtered_accounts[assigned_filters[3]] == i][["Time","Amount cumulated by "+ assigned_filters[3]]]
+    else:
+        #calculates all accounts cumulative value
+        filtered_accounts = filtered_accounts.join(filtered_accounts.Amount.cumsum(),rsuffix=" cumulated by All")
+        y_values["All"]=filtered_accounts[["Time","Amount cumulated by "+ assigned_filters[3]]]
     
+
+    fig = plt.figure(figsize=(12,8))
+    plt.xticks(rotation=70)
+    for i in y_values:
+        #fix dates and createsplot
+        plt.plot( y_values[i]["Time"], y_values[i]["Amount cumulated by "+ assigned_filters[3]],label=i,marker=".")
+    ax = plt.axes()
+    ax.xaxis.set_major_locator(plt.MaxNLocator(15))
+    plt.legend()
+    print("do you want to save the plot?(True/False)")
+    plt.show()
+    t=bool(input())
+    if t:
+        fig.savefig("user/plot.png")
+
