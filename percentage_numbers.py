@@ -15,10 +15,10 @@ def percentage_input(d):
         print("Are you sure, or do you want to retry? (Yes or No)")
         retry = input()
         if retry.title() == "Yes":
-            return percentage_input()
+            return percentage_input(d)
         elif retry.title() == "No":
             return x
         else:
             print("Error! PLease try again")
-            return percentage_input()
+            return percentage_input(d)
 
